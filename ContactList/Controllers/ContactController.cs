@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using ContactList.Models;
+using Microsoft.AspNetCore.Mvc;
 
 namespace ContactList.Controllers
 {
@@ -6,12 +7,72 @@ namespace ContactList.Controllers
     [Route("[controller]")]
     public class ContactController : Controller
     {
-        [HttpGet(Name = "GetContact")]
-        public IActionResult Index()
+        [HttpGet("{id}", Name = "GetContact")]
+        public Contact Get(int id)
         {
-            return Ok("erro");
+            return contacts.Where(c => c.Id == id).FirstOrDefault();
         }
 
+        [HttpGet(Name = "GetContacts")]
+        public List<Contact> GetAll()
+        {
+            return contacts;
+        }
 
+        [HttpPost(Name = "PostContact")]
+        public IActionResult PostContact([FromBody] Contact contact)
+        {
+            var test = contact;
+            contacts.Add(test);
+            return Ok("Contato adicionado");
+        }
+
+        [HttpPut(Name = "PutContact")]
+        public IActionResult PutContact([FromBody] Contact contact)
+        {
+            int index = contacts.FindIndex(c => c.Id == contact.Id);
+            contacts[index] = contact;
+
+            return Ok($"Contato alterado");
+        }
+
+        [HttpDelete(Name = "DeleteContact")]
+        public IActionResult DeleteContact(int id)
+        {
+            var contato = contacts.Find(c => c.Id == id);
+            contacts.Remove(contato);
+            return Ok($"Contato removido");
+        }
+
+        
+
+        public static List<Contact> contacts = new List<Contact>() {
+            
+            new Contact()
+            {
+                Id = 1,
+                Address = "Rua Cachoeira de Minas, 546",
+                Email = "erick.araujo98@hotmail.com",
+                Name = "Erick",
+                Phone = "(11) 97444-2088"
+            },
+            new Contact()
+            {
+                Id = 2,
+                Address = "Rua Antonio amansio",
+                Email = "gordao98@hotmail.com",
+                Name = "gordao",
+                Phone = "(11) 97422-2088"
+            },
+            new Contact()
+            {
+                Id = 3,
+                Address = "rua penelope souza, 133",
+                Email = "cris.greg86@hotmail.com",
+                Name = "crisogreg",
+                Phone = "(11) 94754-2088"
+            }
+
+        };
     }
 }
