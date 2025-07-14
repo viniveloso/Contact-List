@@ -22,15 +22,32 @@ namespace ContactList.Controllers
         [HttpPost(Name = "PostContact")]
         public IActionResult PostContact([FromBody] Contact contact)
         {
-            var test = contact;
-            contacts.Add(test);
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            contact.Id = contacts.Any() ? contacts.Max(c => c.Id) + 1 : 1;
+            contacts.Add(contact);
+
             return Ok("Contato adicionado");
         }
 
         [HttpPut(Name = "PutContact")]
         public IActionResult PutContact([FromBody] Contact contact)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
             int index = contacts.FindIndex(c => c.Id == contact.Id);
+
+            if (index == -1)
+            {
+                return NotFound("Contato não encontrado");
+            }
+
             contacts[index] = contact;
 
             return Ok($"Contato alterado");
