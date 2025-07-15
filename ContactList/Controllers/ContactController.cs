@@ -7,8 +7,8 @@ namespace ContactList.Controllers
     [Route("[controller]")]
     public class ContactController : Controller
     {
-        [HttpGet("{id}", Name = "GetContact")]
-        public Contact Get(int id)
+        [HttpGet("{id}", Name = "GetContactById")]
+        public Contact GetById(int id)
         {
             return contacts.Where(c => c.Id == id).FirstOrDefault();
         }
