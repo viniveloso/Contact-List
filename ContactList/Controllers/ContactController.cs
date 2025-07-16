@@ -1,5 +1,6 @@
 ﻿using ContactList.Models;
 using Microsoft.AspNetCore.Mvc;
+using ContactList.Dtos;
 
 namespace ContactList.Controllers
 {
@@ -20,14 +21,22 @@ namespace ContactList.Controllers
         }
 
         [HttpPost(Name = "PostContact")]
-        public IActionResult PostContact([FromBody] Contact contact)
+        public IActionResult PostContact([FromBody] CreateContactDto dto)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            contact.Id = contacts.Any() ? contacts.Max(c => c.Id) + 1 : 1;
+            var contact = new Contact
+            {
+                Id = contacts.Any() ? contacts.Max(c => c.Id) + 1 : 1,
+                Name = dto.Name,
+                Email = dto.Email,
+                Phone = dto.Phone,
+                Address = dto.Address,
+            };
+
             contacts.Add(contact);
 
             return Ok("Contato adicionado");
