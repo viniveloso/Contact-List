@@ -42,22 +42,25 @@ namespace ContactList.Controllers
             return Ok("Contato adicionado");
         }
 
-        [HttpPut(Name = "PutContact")]
-        public IActionResult PutContact([FromBody] Contact contact)
+        [HttpPut("{id}", Name = "PutContact")]
+        public IActionResult PutContact(int id, [FromBody] UpdateContactDto dto)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            int index = contacts.FindIndex(c => c.Id == contact.Id);
+            int index = contacts.FindIndex(c => c.Id == id);
 
             if (index == -1)
             {
                 return NotFound("Contato não encontrado");
             }
 
-            contacts[index] = contact;
+            contacts[index].Name = dto.Name;
+            contacts[index].Email = dto.Email;
+            contacts[index].Phone = dto.Phone;
+            contacts[index].Address = dto.Address;
 
             return Ok($"Contato alterado");
         }

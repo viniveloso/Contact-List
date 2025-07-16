@@ -2,7 +2,7 @@
 
 namespace ContactList.Dtos
 {
-    public class CreateContactDto
+    public class UpdateContactDto
     {
         [Required(ErrorMessage = "Adicione um nome ao contato!")]
         [StringLength(100, MinimumLength = 2, ErrorMessage = "O nome deve ter entre 2 a 100 caracteres.")]
@@ -17,6 +17,5 @@ namespace ContactList.Dtos
         public required string Phone { get; set; }
 
         public required string Address { get; set; }
-
     }
 }
