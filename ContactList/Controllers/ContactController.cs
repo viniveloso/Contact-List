@@ -1,27 +1,43 @@
-﻿using ContactList.Models;
+﻿using ContactList.Dtos;
+using ContactList.Models;
+using ContactList.Repositories;
 using Microsoft.AspNetCore.Mvc;
-using ContactList.Dtos;
 
 namespace ContactList.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("api/[controller]")]
     public class ContactController : Controller
     {
-        [HttpGet("{id}", Name = "GetContactById")]
-        public Contact GetById(int id)
+        private readonly IContactRepository _repository;
+
+        public ContactController(IContactRepository repository)
         {
-            return contacts.Where(c => c.Id == id).FirstOrDefault();
+            _repository = repository;
+        }
+
+        [HttpGet("{id}", Name = "GetContactById")]
+        public async Task<ActionResult> GetById(int id)
+        {
+            var contact = await _repository.GetByIdAsync(id);
+            if (contact != null)
+            {
+                return Ok(contact);
+            } else
+            {
+                return NotFound("Contact not found.");
+            }           
         }
 
         [HttpGet(Name = "GetContacts")]
-        public List<Contact> GetAll()
+        public async Task<ActionResult<IEnumerable<Contact>>> GetAll()
         {
-            return contacts;
+            var contacts = await _repository.GetAllAsync();
+            return Ok(contacts); //Código Http 200
         }
 
         [HttpPost(Name = "PostContact")]
-        public IActionResult PostContact([FromBody] CreateContactDto dto)
+        public async Task<ActionResult> PostContact([FromBody] CreateContactDto dto)
         {
             if (!ModelState.IsValid)
             {
@@ -30,78 +46,49 @@ namespace ContactList.Controllers
 
             var contact = new Contact
             {
-                Id = contacts.Any() ? contacts.Max(c => c.Id) + 1 : 1,
                 Name = dto.Name,
                 Email = dto.Email,
                 Phone = dto.Phone,
-                Address = dto.Address,
+                Address = dto.Address
             };
 
-            contacts.Add(contact);
+            await _repository.AddAsync(contact);
 
-            return Ok("Contato adicionado");
+            await _repository.SaveChangesAsync();
+
+            return CreatedAtRoute("GetContactById", new { id = contact.Id }, contact);
         }
 
         [HttpPut("{id}", Name = "PutContact")]
-        public IActionResult PutContact(int id, [FromBody] UpdateContactDto dto)
+        public async Task<IActionResult> PutContact(int id, [FromBody] UpdateContactDto dto)
         {
             if (!ModelState.IsValid)
-            {
                 return BadRequest(ModelState);
-            }
 
-            int index = contacts.FindIndex(c => c.Id == id);
+            var existing = await _repository.GetByIdAsync(id);
+            if (existing == null)
+                return NotFound("Contact not found.");
 
-            if (index == -1)
-            {
-                return NotFound("Contato não encontrado");
-            }
+            existing.Name = dto.Name;
+            existing.Email = dto.Email;
+            existing.Phone = dto.Phone;
+            existing.Address = dto.Address;
 
-            contacts[index].Name = dto.Name;
-            contacts[index].Email = dto.Email;
-            contacts[index].Phone = dto.Phone;
-            contacts[index].Address = dto.Address;
+            await _repository.UpdateAsync(existing);
+            await _repository.SaveChangesAsync();
 
-            return Ok($"Contato alterado");
+            return Ok("Contact changed.");
         }
 
-        [HttpDelete(Name = "DeleteContact")]
-        public IActionResult DeleteContact(int id)
+        [HttpDelete("{id}", Name = "DeleteContact")]
+        public async Task<IActionResult> DeleteContact(int id)
         {
-            var contato = contacts.Find(c => c.Id == id);
-            contacts.Remove(contato);
-            return Ok($"Contato removido");
+            var deleted = await _repository.DeleteAsync(id);
+            if (!deleted)
+                return NotFound("Contact not found.");
+
+            await _repository.SaveChangesAsync();
+            return Ok("Contact removed.");
         }
-
-        
-
-        public static List<Contact> contacts = new List<Contact>() {
-            
-            new Contact()
-            {
-                Id = 1,
-                Address = "Rua Cachoeira de Minas, 546",
-                Email = "erick.araujo98@hotmail.com",
-                Name = "Erick",
-                Phone = "(11) 97444-2088"
-            },
-            new Contact()
-            {
-                Id = 2,
-                Address = "Rua Antonio amansio",
-                Email = "gordao98@hotmail.com",
-                Name = "gordao",
-                Phone = "(11) 97422-2088"
-            },
-            new Contact()
-            {
-                Id = 3,
-                Address = "rua penelope souza, 133",
-                Email = "cris.greg86@hotmail.com",
-                Name = "crisogreg",
-                Phone = "(11) 94754-2088"
-            }
-
-        };
     }
 }
