@@ -1,6 +1,6 @@
-﻿using ContactList.Models;
+﻿using ContactList.Domain.Entities;
 
-namespace ContactList.Repositories
+namespace ContactList.Application.Interfaces
 {
     public interface IContactRepository
     {

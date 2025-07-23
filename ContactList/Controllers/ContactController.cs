@@ -1,6 +1,6 @@
-﻿using ContactList.Dtos;
-using ContactList.Models;
-using ContactList.Repositories;
+﻿using ContactList.Application.Dtos;
+using ContactList.Application.Interfaces;
+using ContactList.Domain.Entities;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ContactList.Controllers

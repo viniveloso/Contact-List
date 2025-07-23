@@ -1,5 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
-namespace ContactList.Models
+namespace ContactList.Domain.Entities
 {
     public class Contact
     {

@@ -1,8 +1,9 @@
-﻿using ContactList.Data;
-using ContactList.Models;
+﻿using ContactList.Application.Interfaces;
+using ContactList.Domain.Entities;
+using ContactList.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
-namespace ContactList.Repositories
+namespace ContactList.Infrastructure.Repositories
 {
     public class ContactRepository : IContactRepository
     {

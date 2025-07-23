@@ -1,10 +1,6 @@
-
-
-
-
-
-using ContactList.Data;
-using ContactList.Repositories;
+using ContactList.Application.Interfaces;
+using ContactList.Infrastructure.Persistence;
+using ContactList.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
