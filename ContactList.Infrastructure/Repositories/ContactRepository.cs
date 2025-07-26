@@ -2,6 +2,9 @@
 using ContactList.Domain.Entities;
 using ContactList.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
+using ContactList.Domain.Entities;
+using ContactList.Application.Interfaces;
+using ContactList.Infrastructure.Persistence;
 
 namespace ContactList.Infrastructure.Repositories
 {
@@ -53,10 +56,7 @@ namespace ContactList.Infrastructure.Repositories
             var existing = await _context.Contacts.FindAsync(contact.Id);
             if (existing != null)
             {
-                existing.Name = contact.Name;
-                existing.Email = contact.Email;
-                existing.Phone = contact.Phone;
-                existing.Address = contact.Address;
+                _context.Entry(existing).CurrentValues.SetValues(contact);
             }
         }
 

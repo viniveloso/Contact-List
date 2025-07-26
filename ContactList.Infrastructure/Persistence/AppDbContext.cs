@@ -11,5 +11,10 @@ namespace ContactList.Infrastructure.Persistence
         }
 
         public DbSet<Contact> Contacts { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+        }
     }
 }

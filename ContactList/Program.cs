@@ -1,4 +1,6 @@
 using ContactList.Application.Interfaces;
+using ContactList.Application.UseCases;
+using ContactList.Infrastructure.Services;
 using ContactList.Infrastructure.Persistence;
 using ContactList.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
@@ -13,9 +15,17 @@ builder.Services.AddControllers();
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+builder.Services.AddScoped<IContactRepository, ContactRepository>();
+
+builder.Services.AddHttpClient<IViaCepService, ViaCepService>();
+
+builder.Services.AddScoped<CreateContactUseCase>();
+builder.Services.AddScoped<UpdateContactUseCase>();
+builder.Services.AddScoped<GetAddressDetailsByCepQuery>();
+
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddScoped<IContactRepository, ContactRepository>();
 
 var app = builder.Build();
 

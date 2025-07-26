@@ -16,7 +16,9 @@ namespace ContactList.Application.Dtos
         [Phone(ErrorMessage = "O número de telefone não é válido.")]
         public required string Phone { get; set; }
 
-        public required string Address { get; set; }
+        [Required(ErrorMessage = "Informe um CEP.")]
+        [RegularExpression(@"^\d{8}$", ErrorMessage = "O CEP deve conter exatamente 8 digitos numericos.")]
+        public required string Cep { get; set; }
 
     }
 }

@@ -1,7 +1,10 @@
 ﻿using ContactList.Application.Dtos;
+using ContactList.Application.UseCases;
 using ContactList.Application.Interfaces;
 using ContactList.Domain.Entities;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore.Update.Internal;
 
 namespace ContactList.Controllers
 {
@@ -11,9 +14,16 @@ namespace ContactList.Controllers
     {
         private readonly IContactRepository _repository;
 
-        public ContactController(IContactRepository repository)
+        private readonly CreateContactUseCase _createContactUseCase;
+        private readonly UpdateContactUseCase _updateContactUseCase;
+        private readonly GetAddressDetailsByCepQuery _getAddressDetailsByCepQuery;
+
+        public ContactController(IContactRepository repository, CreateContactUseCase createContactUseCase, UpdateContactUseCase updateContactUseCase, GetAddressDetailsByCepQuery getAddressDetailsByCepQuery)
         {
             _repository = repository;
+            _createContactUseCase = createContactUseCase;
+            _updateContactUseCase = updateContactUseCase;
+            _getAddressDetailsByCepQuery = getAddressDetailsByCepQuery;
         }
 
         [HttpGet("{id}", Name = "GetContactById")]
@@ -44,19 +54,14 @@ namespace ContactList.Controllers
                 return BadRequest(ModelState);
             }
 
-            var contact = new Contact
+            var result = await _createContactUseCase.ExecuteAsync(dto);
+
+            if (!result.Success)
             {
-                Name = dto.Name,
-                Email = dto.Email,
-                Phone = dto.Phone,
-                Address = dto.Address
-            };
+                return BadRequest(new { result.Message });
+            }
 
-            await _repository.AddAsync(contact);
-
-            await _repository.SaveChangesAsync();
-
-            return CreatedAtRoute("GetContactById", new { id = contact.Id }, contact);
+            return CreatedAtRoute("GetContactById", new { id = result.Contact!.Id }, result.Contact);
         }
 
         [HttpPut("{id}", Name = "PutContact")]
@@ -72,7 +77,7 @@ namespace ContactList.Controllers
             existing.Name = dto.Name;
             existing.Email = dto.Email;
             existing.Phone = dto.Phone;
-            existing.Address = dto.Address;
+            existing.Cep = dto.Cep;
 
             await _repository.UpdateAsync(existing);
             await _repository.SaveChangesAsync();
@@ -89,6 +94,22 @@ namespace ContactList.Controllers
 
             await _repository.SaveChangesAsync();
             return Ok("Contact removed.");
+        }
+
+        [HttpGet("address-by-cep/{cep}")]
+        [ProducesResponseType(typeof(AddressDetailsDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> GetAddressByCep(string cep)
+        {
+            var addressDetails = await _getAddressDetailsByCepQuery.ExecuteAsync(cep);
+
+            if (addressDetails == null)
+            {
+                return NotFound("CEP não encontrado ou formato inválido.");
+            }
+
+            return Ok(addressDetails);
         }
     }
 }
